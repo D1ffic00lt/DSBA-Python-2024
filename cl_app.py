@@ -1,5 +1,53 @@
 # Music recommendation application
+import csv
+
+ARTIST_INDEX = 1
+LIKES_INDEX = 22
+
+def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
+    artists = dict()
+    likes = dict()
+    for row in data:
+        artists[row[ARTIST_INDEX]] = artists.get(row[ARTIST_INDEX], 0) + 1
+        likes[row[ARTIST_INDEX]] = (
+            likes.get(row[ARTIST_INDEX], 0) + float(row[LIKES_INDEX])
+            if row[LIKES_INDEX] != ""
+            else 0
+        )
+
+    for artist in artists:
+        artists[artist] = likes[artist] / artists[artist]
+
+    return sorted(artists.items(), key=lambda x: x[1], reverse=True)[:n]
+
+
+
+def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, float]:
+    if index < 0 or index >= len(data[0]):
+        raise IndexError("Index out of range")
+    if not data[0][index].replace(".", "", 1).isdigit():
+        raise ValueError("Column must be a digit")
+
+    column = [float(row[index]) for row in data if row[index]]
+    return min(column), max(column)
+
+
+def get_shape(data: list[list[str]]) -> tuple[int, int]:
+    return len(data), len(data[0])
+
+def read_from_file(filename: str = "./data/Spotify_Youtube.csv"):
+    with open(filename) as file:
+        header = file.readline()
+        reader = csv.reader(file)
+        data = [row for row in reader]
+    return header, data
 
 if __name__ == "__main__":
-    # put your code here
-    print("DSBA-Python-2024")
+    dataset_header, dataset = read_from_file()
+    print(get_shape(dataset))
+    print(get_minimum_and_maximum(dataset, 7))
+    print(get_top_artists(dataset, 5))
+    # print(~1)
+    # print(~7)
+    # print(1 if 2 > 3 else 1 if 5 < 2 else 4)
+    # print([i if i % 2 == 0 else True for i in range(10)])
