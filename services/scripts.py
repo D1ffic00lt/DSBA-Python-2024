@@ -1,15 +1,49 @@
 # Music recommendation application
 import csv
-from .cfg import ARTIST_INDEX, LIKES_INDEX
+
+from cfg import TableEnum
+
+
+class Song:
+    def __init__(self, row: list[str]) -> None:
+        self.id = int(row[TableEnum.ID.value])
+        self.name = row[TableEnum.Track.value]
+        self.album = row[TableEnum.Album.value]
+        self.artist = row[TableEnum.Artist.value]
+
+
+class DataBase:
+    def __init__(self, filename):
+        self.db = {}
+
+        with open(filename, encoding='utf-8-sig') as file:
+            _ = file.readline()
+            reader = csv.reader(file)
+
+            for row in reader:
+                self.add_song(Song(row))
+
+    def add_song(self, song: Song) -> None:
+        self.db[song.id] = song
+
+    def get_song(self, song_id: int) -> Song:
+        return self.db.get(song_id)
+
+
+if __name__ == '__main__':
+    db = DataBase(filename='../data/Spotify_Youtube.csv')
+
+    print(db.get_song(1).name)
+
 
 def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
     artists = {}
     likes = {}
     for row in data:
-        artists[row[ARTIST_INDEX]] = artists.get(row[ARTIST_INDEX], 0) + 1
-        likes[row[ARTIST_INDEX]] = (
-            likes.get(row[ARTIST_INDEX], 0) + float(row[LIKES_INDEX])
-            if row[LIKES_INDEX] != ""
+        artists[row[TableEnum.Artist.value]] = artists.get(row[TableEnum.Artist.value], 0) + 1
+        likes[row[TableEnum.Artist.value]] = (
+            likes.get(row[TableEnum.Artist.value], 0) + float(row[TableEnum.Likes.value])
+            if row[TableEnum.Likes.value] != ""
             else 0
         )
 
@@ -17,7 +51,6 @@ def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
         artists[artist] = likes[artist] / artists[artist]
 
     return sorted(artists.items(), key=lambda x: x[1], reverse=True)[:n]
-
 
 
 def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, float]:
@@ -32,10 +65,3 @@ def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, f
 
 def get_shape(data: list[list[str]]) -> tuple[int, int]:
     return len(data), len(data[0])
-
-def read_from_file(filename: str = "./data/Spotify_Youtube.csv"):
-    with open(filename) as file:
-        header = file.readline()
-        reader = csv.reader(file)
-        data = [row for row in reader]
-    return header, data
