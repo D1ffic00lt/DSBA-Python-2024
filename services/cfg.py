@@ -1,0 +1,5 @@
+
+
+
+ARTIST_INDEX = 1
+LIKES_INDEX = 22

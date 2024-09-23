@@ -1,12 +1,10 @@
 # Music recommendation application
 import csv
-
-ARTIST_INDEX = 1
-LIKES_INDEX = 22
+from .cfg import ARTIST_INDEX, LIKES_INDEX
 
 def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
-    artists = dict()
-    likes = dict()
+    artists = {}
+    likes = {}
     for row in data:
         artists[row[ARTIST_INDEX]] = artists.get(row[ARTIST_INDEX], 0) + 1
         likes[row[ARTIST_INDEX]] = (

@@ -1,5 +1,5 @@
 
-from utils import get_shape, get_minimum_and_maximum, read_from_file, get_top_artists
+from services import get_shape, get_minimum_and_maximum, read_from_file, get_top_artists
 
 
 
