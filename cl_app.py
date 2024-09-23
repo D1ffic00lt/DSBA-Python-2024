@@ -1,5 +1,3 @@
-# Music recommendation application
-import csv
 
 from utils import get_shape, get_minimum_and_maximum, read_from_file, get_top_artists
 
