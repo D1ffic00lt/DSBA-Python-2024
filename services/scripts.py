@@ -31,7 +31,7 @@ class DataBase:
 
     def add_song(self, song: Song) -> None:
         if song.id in self.db:
-            raise Exception('A song with this id already exists!')
+            raise ValueError('A song with this id already exists!')
 
         self.db[song.id] = song
 
