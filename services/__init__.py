@@ -5,5 +5,5 @@ if __name__ == '__main__':
 
     song = db.get_song(1)
 
-    print(song.name if song else 'Song does not exitst')
+    print(song.name if song else 'Song does not exist')
 
