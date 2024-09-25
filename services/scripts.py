@@ -1,43 +1,50 @@
 # Music recommendation application
-import csv
-
+import pandas as pd
+from collections import defaultdict
 from cfg import TableIndexes
 
 
 class Song:
-    def __init__(self, row: list[str]) -> None:
-        self.id = row[TableIndexes.ID.value]
-        self.name = row[TableIndexes.TRACK.value]
-        self.album = row[TableIndexes.ALBUM.value]
-        self.artist = row[TableIndexes.ARTIST.value]
+    def __init__(self, row: pd.Series) -> None:
+        self.id = row.index
+        self.track = row.Track
+        self.album = row.Album
+        self.artist = row.Artist
+        
+    def __repr__(self):
+        return f'|{self.artist}: {self.track}|\n'
 
 
 class DataBase:
     def __init__(self, filename: str) -> None:
-        self.db = {}
-
-        with open(filename, encoding='utf-8-sig') as file:
-            _ = file.readline()
-            reader = csv.reader(file)
-
-            for row in reader:
-                self.add_song(self.__parse_row(row))
-
-    @staticmethod
-    def __parse_row(row: list[str]) -> Song:
-        row[TableIndexes.ID.value] = int(row[TableIndexes.ID.value])
-
-        return Song(row)
+        self._storage = defaultdict(lambda: [])
+        df = pd.read_csv(filename, index_col=0)
+        
+        for _, row in df.iterrows():
+            self.add_song(
+                Song(row)       
+            )
+        
 
     def add_song(self, song: Song) -> None:
-        if song.id in self.db:
-            raise ValueError('A song with this id already exists!')
-
-        self.db[song.id] = song
+        self._storage[song.artist].append(song)
 
     def get_song(self, song_id: int) -> Song | None:
-        return self.db.get(song_id)
+        return self._storage.get(song_id)
 
+    def search(self, request: str) -> list[Song]:
+        _result = []
+        for song in sum(self._storage.values(), start=[]):
+            if request in song.track:
+                _result.append(song)
+        return _result
+    
+        
+            
+            
+            
+            
+        
 
 def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
     artists = {}
@@ -71,4 +78,6 @@ def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, f
 def get_shape(data: list[list[str]]) -> tuple[int, int]:
     return len(data), len(data[0])
 
-
+if __name__ == '__main__':
+    db = DataBase('./data/Spotify_Youtube.csv')
+    print(db.search('asFGAERT QWERT A DGADG Wr f'))
