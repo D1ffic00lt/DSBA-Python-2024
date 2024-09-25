@@ -72,7 +72,3 @@ def get_shape(data: list[list[str]]) -> tuple[int, int]:
     return len(data), len(data[0])
 
 
-if __name__ == '__main__':
-    db = DataBase(filename='../data/Spotify_Youtube.csv')
-
-    print(db.get_song(1).name)
