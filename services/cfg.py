@@ -1,15 +1,16 @@
 from enum import Enum
 
 
-class TableEnum(Enum):
+class TableIndexes(Enum):
     ID = 0
-    Artist = 1
-    Url_spotify = 2
-    Track = 3
-    Album = 4
-    Album_type = 5
-    Uri = 6
-    Likes = 22
+    ARTIST = 1
+    URL_SPOTIFY = 2
+    TRACK = 3
+    ALBUM = 4
+    ALBUM_TYPE = 5
+    URI = 6
+    LIKES = 22
+
     # Danceability
     # Energy
     # Key
