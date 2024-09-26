@@ -48,4 +48,4 @@ MUSICALITY_ROWS: Final[list[str]] = [
     "Duration_ms",
 ]
 
-MUSICALITY_ROWS_norm: Final[list[str]] = [f"{row}_norm" for row in MUSICALITY_ROWS]
+MUSICALITY_ROWS_NORM: Final[list[str]] = [f"{row}_norm" for row in MUSICALITY_ROWS]
