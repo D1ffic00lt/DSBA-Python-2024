@@ -147,4 +147,3 @@ if __name__ == "__main__":
     if song := db._storage["Amadeus"][0]:
         print(db.similar_songs(song))
 
-# 
