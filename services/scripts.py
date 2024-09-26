@@ -146,3 +146,5 @@ if __name__ == "__main__":
     db = DataBase("./data/Spotify_Youtube.csv")
     if song := db._storage["Amadeus"][0]:
         print(db.similar_songs(song))
+
+# 
