@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Final
 
 
 class TableIndexes(Enum):
@@ -32,3 +33,19 @@ class TableIndexes(Enum):
     # Licensed
     # official_video
     # Stream
+    
+MUSICALITY_ROWS: Final[list[str]] = [
+    "Danceability",
+    "Energy",
+    "Key",
+    "Loudness",
+    "Speechiness",
+    "Acousticness",
+    "Instrumentalness",
+    "Liveness",
+    "Valence",
+    "Tempo",
+    "Duration_ms",
+]
+
+MUSICALITY_ROWS_norm: Final[list[str]] = [f"{row}_norm" for row in MUSICALITY_ROWS]

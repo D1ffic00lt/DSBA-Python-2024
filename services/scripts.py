@@ -1,7 +1,8 @@
 # Music recommendation application
 import pandas as pd
 from collections import defaultdict
-from cfg import TableIndexes
+from cfg import TableIndexes, MUSICALITY_ROWS_norm, MUSICALITY_ROWS
+
 
 
 class Song:
@@ -10,50 +11,112 @@ class Song:
         self.track = row.Track
         self.album = row.Album
         self.artist = row.Artist
-        
+
+        self.musicality = row[MUSICALITY_ROWS_norm].values
+
     def __repr__(self):
-        return f'|{self.artist}: {self.track}|\n'
+        return f"|{self.artist}: {self.track}|\n"
+
+    def eff_distance(self, other: "Song") -> float:
+        """Calculate the effective distance between two songs based on their musicality.
+
+        This method computes the Euclidean distance between the musicality attributes of 
+        the current song and another song. The distance is calculated as the square root 
+        of the sum of the squared differences of their musicality values.
+
+        Args:
+            other: Another instance of the Song class to compare against.
+
+        Returns:
+            The effective distance as a float value.
+        """
+
+        return (
+            sum(
+                (
+                    (other.musicality[i] - self.musicality[i]) ** 2
+                    for i in range(len(self.musicality))
+                )
+            )
+            ** 0.5
+        )
 
 
 class DataBase:
     def __init__(self, filename: str) -> None:
         self._storage = defaultdict(lambda: [])
-        df = pd.read_csv(filename, index_col=0)
-        
-        for _, row in df.iterrows():
-            self.add_song(
-                Song(row)       
+        self._filepath: str = filename
+
+        self.load()
+
+    @property
+    def songs(self) -> list[Song]:
+        return sum(self._storage.values(), start=[])
+
+    @staticmethod
+    def _normalize_musicality_rows(df: pd.DataFrame) -> None:
+        for row in MUSICALITY_ROWS:
+            df.loc[:, f"{row}_norm"] = (df[row] - df[row].min()) / (
+                df[row].max() - df[row].min()
             )
-        
+
+    def load(self) -> None:
+        df = pd.read_csv(self._filepath, index_col=0)
+        df.dropna(subset=MUSICALITY_ROWS, inplace=True)
+        self._normalize_musicality_rows(df)
+        for _, row in df.iterrows():
+            self.add_song(Song(row))
 
     def add_song(self, song: Song) -> None:
         self._storage[song.artist].append(song)
 
-    def get_song(self, song_id: int) -> Song | None:
-        return self._storage.get(song_id)
-
     def search(self, request: str) -> list[Song]:
-        _result = []
-        for song in sum(self._storage.values(), start=[]):
-            if request in song.track:
-                _result.append(song)
-        return _result
-    
-        
-            
-            
-            
-            
-        
+        return [
+            song
+            for song in sum(self._storage.values(), start=[])
+            if request in song.track
+        ]
+
+    def similar_songs(self, song: Song, count: int = 5) -> list[Song]:
+        """Calculate the effective distance between two songs based on their musicality.
+
+        This method computes the Euclidean distance between the musicality attributes of 
+        the current song and another song. The distance is calculated as the square root 
+        of the sum of the squared differences of their musicality values.
+
+        Args:
+            other: Another instance of the Song class to compare against.
+
+        Returns:
+            The effective distance as a float value.
+        """
+
+        return [
+            i[0]
+            for i in list(
+                sorted(
+                    [
+                        (_song, _song.eff_distance(song))
+                        for _song in self.songs
+                        if _song != song
+                    ],
+                    key = lambda x: x[1],
+                )[:count]
+            )
+        ]
+
 
 def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
     artists = {}
     likes = {}
 
     for row in data:
-        artists[row[TableIndexes.ARTIST.value]] = artists.get(row[TableIndexes.ARTIST.value], 0) + 1
+        artists[row[TableIndexes.ARTIST.value]] = (
+            artists.get(row[TableIndexes.ARTIST.value], 0) + 1
+        )
         likes[row[TableIndexes.ARTIST.value]] = (
-            likes.get(row[TableIndexes.ARTIST.value], 0) + float(row[TableIndexes.LIKES.value])
+            likes.get(row[TableIndexes.ARTIST.value], 0)
+            + float(row[TableIndexes.LIKES.value])
             if row[TableIndexes.LIKES.value] != ""
             else 0
         )
@@ -61,7 +124,7 @@ def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
     for artist in artists:
         artists[artist] = likes[artist] / artists[artist]
 
-    return sorted(artists.items(), key=lambda x:x[1], reverse=True)[:n]
+    return sorted(artists.items(), key=lambda x: x[1], reverse=True)[:n]
 
 
 def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, float]:
@@ -78,6 +141,8 @@ def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, f
 def get_shape(data: list[list[str]]) -> tuple[int, int]:
     return len(data), len(data[0])
 
-if __name__ == '__main__':
-    db = DataBase('./data/Spotify_Youtube.csv')
-    print(db.search('asFGAERT QWERT A DGADG Wr f'))
+
+if __name__ == "__main__":
+    db = DataBase("./data/Spotify_Youtube.csv")
+    if song := db._storage["Amadeus"][0]:
+        print(db.similar_songs(song))
