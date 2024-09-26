@@ -78,19 +78,20 @@ class DataBase:
         ]
 
     def similar_songs(self, song: Song, count: int = 5) -> list[Song]:
-        """Calculate the effective distance between two songs based on their musicality.
+        """Retrieve a list of songs that are similar to a given song.
 
-        This method computes the Euclidean distance between the musicality attributes of 
-        the current song and another song. The distance is calculated as the square root 
-        of the sum of the squared differences of their musicality values.
+        This method identifies and returns a specified number of songs that are most 
+        similar to the provided song based on their effective distance in musicality. 
+        The similarity is determined by sorting the songs according to their distance 
+        from the given song and selecting the closest matches.
 
         Args:
-            other: Another instance of the Song class to compare against.
+            song: The Song instance to compare against.
+            count: The maximum number of similar songs to return (default is 5).
 
         Returns:
-            The effective distance as a float value.
+            A list of Song instances that are similar to the provided song.
         """
-
         return [
             i[0]
             for i in list(
