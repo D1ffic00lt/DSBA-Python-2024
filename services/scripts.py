@@ -12,7 +12,7 @@ class Song:
         self.album = row.Album
         self.artist = row.Artist
 
-        self.musicality = row[MUSICALITY_ROWS_norm].values
+        self.musicality = row[MUSICALITY_ROWS_NORM].values
 
     def __repr__(self):
         return f"|{self.artist}: {self.track}|\n"
