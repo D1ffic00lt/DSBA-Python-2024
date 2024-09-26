@@ -1,7 +1,7 @@
 # Music recommendation application
 import pandas as pd
 from collections import defaultdict
-from cfg import TableIndexes, MUSICALITY_ROWS_norm, MUSICALITY_ROWS
+from cfg import TableIndexes, MUSICALITY_ROWS_NORM, MUSICALITY_ROWS
 
 
 
