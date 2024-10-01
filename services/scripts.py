@@ -65,7 +65,6 @@ class DataBase:
     def load(self) -> None:
         df = pd.read_csv(self._filepath, index_col=0)
         df.dropna(subset=MUSICALITY_ROWS, inplace=True)
-        print(len(df.Album.unique()))
         self._normalize_musicality_rows(df)
         for _, row in df.iterrows():
             self.add_song(Song(row))
