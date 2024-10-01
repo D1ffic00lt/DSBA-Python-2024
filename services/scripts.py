@@ -1,7 +1,9 @@
 # Music recommendation application
+from collections.abc import Callable
+from typing import Generator
 import pandas as pd
 from collections import defaultdict
-from cfg import TableIndexes, MUSICALITY_ROWS_NORM, MUSICALITY_ROWS
+from .cfg import TableIndexes, MUSICALITY_ROWS_NORM, MUSICALITY_ROWS
 
 
 
@@ -63,6 +65,7 @@ class DataBase:
     def load(self) -> None:
         df = pd.read_csv(self._filepath, index_col=0)
         df.dropna(subset=MUSICALITY_ROWS, inplace=True)
+        print(len(df.Album.unique()))
         self._normalize_musicality_rows(df)
         for _, row in df.iterrows():
             self.add_song(Song(row))
@@ -105,6 +108,22 @@ class DataBase:
                 )[:count]
             )
         ]
+        
+    def get_songs_by_artist(self, artist: str) -> list[Song]:
+        return self._storage.get(artist, [])
+    
+    def filter(self, match_: list[Callable] | Callable, count: int = -1, mode: Callable = all) -> Generator[Song, None, None]:
+        if isinstance(match_, Callable):
+            match_ = [match_]
+        return_counter = 0
+        for song in self.songs:
+            if return_counter == count:
+                break
+            match = [i(song) for i in match_]
+            if mode(match):
+                return_counter += 1
+                yield song
+            
 
 
 def get_top_artists(data: list[list[str]], n: int) -> list[tuple[str, float]]:
@@ -141,10 +160,4 @@ def get_minimum_and_maximum(data: list[list[str]], index: int) -> tuple[float, f
 
 def get_shape(data: list[list[str]]) -> tuple[int, int]:
     return len(data), len(data[0])
-
-
-if __name__ == "__main__":
-    db = DataBase("./data/Spotify_Youtube.csv")
-    if song := db._storage["Amadeus"][0]:
-        print(db.similar_songs(song))
 
